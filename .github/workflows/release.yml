@@ -1,0 +1,67 @@
+name: Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bump version
+        id: version
+        run: |
+          npm version ${{ inputs.version_bump }} --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "vsix_name=bmad-codelens-${VERSION}.vsix" >> "$GITHUB_OUTPUT"
+
+      - name: Compile and package
+        run: npm run release
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "release: v${{ steps.version.outputs.version }}"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin HEAD --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: |
+            ## BMAD Story CodeLens v${{ steps.version.outputs.version }}
+
+            ### Install
+
+            Download `${{ steps.version.outputs.vsix_name }}` and run:
+            ```bash
+            code --install-extension ${{ steps.version.outputs.vsix_name }}
+            ```
+          files: ${{ steps.version.outputs.vsix_name }}
+          generate_release_notes: true
