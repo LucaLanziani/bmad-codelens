@@ -2,7 +2,7 @@
   "name": "bmad-codelens",
   "displayName": "BMAD Story CodeLens",
   "description": "Adds CodeLens buttons above BMAD story headers for quick workflow actions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "icon": "icon.png",
   "publisher": "LucaLanziani",
   "license": "MIT",
@@ -44,8 +44,16 @@
         "bmadCodelens.actions": {
           "type": "array",
           "default": [
-            { "label": "Create Story", "commandPrefix": "/bmad-bmm-create-story", "behavior": "chat" },
-            { "label": "Copy Story", "commandPrefix": "", "behavior": "clipboard" }
+            {
+              "label": "Create Story",
+              "commandPrefix": "/bmad-bmm-create-story",
+              "behavior": "chat"
+            },
+            {
+              "label": "Copy Story",
+              "commandPrefix": "",
+              "behavior": "clipboard"
+            }
           ],
           "items": {
             "type": "object",
@@ -60,11 +68,18 @@
               },
               "behavior": {
                 "type": "string",
-                "enum": ["clipboard", "chat"],
+                "enum": [
+                  "clipboard",
+                  "chat"
+                ],
                 "description": "Action behavior: copy to clipboard or attempt to open chat"
               }
             },
-            "required": ["label", "commandPrefix", "behavior"]
+            "required": [
+              "label",
+              "commandPrefix",
+              "behavior"
+            ]
           },
           "description": "List of actions to show as CodeLens buttons above each story"
         }
