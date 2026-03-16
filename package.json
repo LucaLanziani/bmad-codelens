@@ -1,0 +1,88 @@
+{
+  "name": "bmad-codelens",
+  "displayName": "BMAD Story CodeLens",
+  "description": "Adds CodeLens buttons above BMAD story headers for quick workflow actions",
+  "version": "0.1.0",
+  "publisher": "LucaLanziani",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LucaLanziani/bmad-codelens.git",
+    "directory": "tools/bmad-codelens"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bmadCodelens.executeAction",
+        "title": "BMAD: Execute Story Action"
+      }
+    ],
+    "configuration": {
+      "title": "BMAD CodeLens",
+      "properties": {
+        "bmadCodelens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable BMAD Story CodeLens buttons"
+        },
+        "bmadCodelens.filePattern": {
+          "type": "string",
+          "default": "**/*.md",
+          "description": "Glob pattern for files to activate CodeLens on"
+        },
+        "bmadCodelens.actions": {
+          "type": "array",
+          "default": [
+            { "label": "Create Story", "commandPrefix": "/bmad-bmm-create-story", "behavior": "chat" },
+            { "label": "Dev Story", "commandPrefix": "/bmad-bmm-dev-story", "behavior": "chat" },
+            { "label": "Copy Story", "commandPrefix": "", "behavior": "clipboard" }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Button label shown in CodeLens"
+              },
+              "commandPrefix": {
+                "type": "string",
+                "description": "Slash command prefix (e.g. /bmad-bmm-create-story). Empty for plain copy."
+              },
+              "behavior": {
+                "type": "string",
+                "enum": ["clipboard", "chat"],
+                "description": "Action behavior: copy to clipboard or attempt to open chat"
+              }
+            },
+            "required": ["label", "commandPrefix", "behavior"]
+          },
+          "description": "List of actions to show as CodeLens buttons above each story"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies",
+    "install:cursor": "cursor --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
+    "install:vscode": "code --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
+    "release": "npm run compile && npm run package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.5.0"
+  }
+}
