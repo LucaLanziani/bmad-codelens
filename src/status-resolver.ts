@@ -5,9 +5,9 @@ export type StoryStatus = 'ready-for-dev' | 'review' | 'done';
 const STATUS_RE = /^Status:\s*(.+)$/im;
 
 const STATUS_ICONS: Record<StoryStatus, string> = {
-  'ready-for-dev': '🟦',
-  'review': '🟨',
-  'done': '🟩',
+  'ready-for-dev': '🔵',
+  'review': '🟡',
+  'done': '🟢',
 };
 
 function normalizeStatus(raw: string): StoryStatus {
