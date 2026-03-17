@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext): void {
       (args: CodeLensActionArgs) => executeAction(args.action, args.story),
     ),
   );
+
 }
 
 export function deactivate(): void {
