@@ -46,22 +46,33 @@ export class EpicCodeLensProvider implements vscode.CodeLensProvider {
     const stories = parseStories(document.getText());
     const actions = getConfiguredActions();
 
-    const statuses = await resolveStatuses(stories.map((s) => s.id));
+    const resolved = await resolveStatuses(stories.map((s) => s.id));
     const lenses: vscode.CodeLens[] = [];
 
     for (const story of stories) {
       const range = new vscode.Range(story.lineNumber, 0, story.lineNumber, 0);
-      const status = statuses.get(story.id) ?? null;
-      const hasImplementation = status !== null;
+      const entry = resolved.get(story.id) ?? null;
+      const hasImplementation = entry !== null;
 
       if (hasImplementation) {
         lenses.push(
           new vscode.CodeLens(range, {
-            title: statusLabel(status),
+            title: statusLabel(entry.status),
             command: '',
-            tooltip: `Story ${story.id} status: ${status}`,
+            tooltip: `Story ${story.id} status: ${entry.status}`,
           }),
         );
+
+        if (entry.status !== 'done') {
+          lenses.push(
+            new vscode.CodeLens(range, {
+              title: '$(go-to-file) Go to Story',
+              command: 'vscode.open',
+              arguments: [entry.fileUri],
+              tooltip: `Open story implementation file`,
+            }),
+          );
+        }
       }
 
       for (const action of actions) {
