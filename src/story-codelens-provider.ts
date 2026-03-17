@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { parseStories, parseStoryFile } from './story-parser';
-import { getConfiguredActions, StoryAction, StoryRef } from './actions';
+import { getConfiguredActions, getOutputFolder, StoryAction, StoryRef } from './actions';
 import { resolveStatuses, statusLabel } from './status-resolver';
 
 export interface CodeLensActionArgs {
@@ -12,23 +12,36 @@ export interface CodeLensActionArgs {
  * CodeLens for epic files — shows configurable action buttons above each
  * ### Story header. Hides "Create Story" when an implementation file exists.
  */
-export class EpicCodeLensProvider implements vscode.CodeLensProvider {
+export class EpicCodeLensProvider implements vscode.CodeLensProvider, vscode.Disposable {
   private _onDidChangeCodeLenses = new vscode.EventEmitter<void>();
   public readonly onDidChangeCodeLenses = this._onDidChangeCodeLenses.event;
+  private readonly _disposables: vscode.Disposable[] = [];
 
   constructor() {
-    vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('bmadCodelens')) {
-        this._onDidChangeCodeLenses.fire();
-      }
-    });
+    const fire = () => this._onDidChangeCodeLenses.fire();
+
+    this._disposables.push(
+      vscode.workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration('bmadCodelens')) {
+          fire();
+        }
+      }),
+    );
 
     const watcher = vscode.workspace.createFileSystemWatcher(
-      '**/implementation-artifacts/*.md',
+      `${getOutputFolder()}/implementation-artifacts/*.md`,
     );
-    watcher.onDidChange(() => this._onDidChangeCodeLenses.fire());
-    watcher.onDidCreate(() => this._onDidChangeCodeLenses.fire());
-    watcher.onDidDelete(() => this._onDidChangeCodeLenses.fire());
+    watcher.onDidChange(fire, undefined, this._disposables);
+    watcher.onDidCreate(fire, undefined, this._disposables);
+    watcher.onDidDelete(fire, undefined, this._disposables);
+    this._disposables.push(watcher);
+  }
+
+  dispose(): void {
+    for (const d of this._disposables) {
+      d.dispose();
+    }
+    this._onDidChangeCodeLenses.dispose();
   }
 
   async provideCodeLenses(
@@ -128,9 +141,7 @@ export class StoryFileCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     const range = new vscode.Range(storyFile.lineNumber, 0, storyFile.lineNumber, 0);
-    const isReview = storyFile.status === 'review'
-      || storyFile.status === 'code-review'
-      || storyFile.status === 'in-review';
+    const isReview = storyFile.status === 'review';
 
     const action: StoryAction = isReview
       ? { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'chat' }
