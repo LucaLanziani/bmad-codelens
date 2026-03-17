@@ -25,6 +25,11 @@ function storyIdToFilePrefix(id: string): string {
   return id.replace('.', '-') + '-';
 }
 
+export interface ResolvedStatus {
+  status: StoryStatus;
+  fileUri: vscode.Uri;
+}
+
 /**
  * Look up the status for a list of story IDs by finding their
  * matching implementation artifact files in the workspace.
@@ -32,8 +37,8 @@ function storyIdToFilePrefix(id: string): string {
  */
 export async function resolveStatuses(
   storyIds: string[],
-): Promise<Map<string, StoryStatus | null>> {
-  const result = new Map<string, StoryStatus | null>();
+): Promise<Map<string, ResolvedStatus | null>> {
+  const result = new Map<string, ResolvedStatus | null>();
 
   const files = await vscode.workspace.findFiles(
     '**/implementation-artifacts/*.md',
@@ -66,7 +71,8 @@ export async function resolveStatuses(
       const content = await vscode.workspace.fs.readFile(matchedUri);
       const text = Buffer.from(content).toString('utf-8');
       const match = STATUS_RE.exec(text);
-      result.set(id, match ? normalizeStatus(match[1]) : 'ready-for-dev');
+      const status = match ? normalizeStatus(match[1]) : 'ready-for-dev';
+      result.set(id, { status, fileUri: matchedUri });
     } catch {
       result.set(id, null);
     }
