@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { parseStories, parseStoryFile } from './story-parser';
 import { getConfiguredActions, StoryAction, StoryRef } from './actions';
+import { resolveStatuses, statusLabel } from './status-resolver';
 
 export interface CodeLensActionArgs {
   action: StoryAction;
@@ -8,7 +9,8 @@ export interface CodeLensActionArgs {
 }
 
 /**
- * CodeLens for epic files — shows configurable actions above each ### Story header.
+ * CodeLens for epic files — shows configurable action buttons above each
+ * ### Story header. Hides "Create Story" when an implementation file exists.
  */
 export class EpicCodeLensProvider implements vscode.CodeLensProvider {
   private _onDidChangeCodeLenses = new vscode.EventEmitter<void>();
@@ -20,12 +22,19 @@ export class EpicCodeLensProvider implements vscode.CodeLensProvider {
         this._onDidChangeCodeLenses.fire();
       }
     });
+
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      '**/implementation-artifacts/*.md',
+    );
+    watcher.onDidChange(() => this._onDidChangeCodeLenses.fire());
+    watcher.onDidCreate(() => this._onDidChangeCodeLenses.fire());
+    watcher.onDidDelete(() => this._onDidChangeCodeLenses.fire());
   }
 
-  provideCodeLenses(
+  async provideCodeLenses(
     document: vscode.TextDocument,
     _token: vscode.CancellationToken,
-  ): vscode.CodeLens[] {
+  ): Promise<vscode.CodeLens[]> {
     const enabled = vscode.workspace
       .getConfiguration('bmadCodelens')
       .get<boolean>('enabled', true);
@@ -36,12 +45,30 @@ export class EpicCodeLensProvider implements vscode.CodeLensProvider {
 
     const stories = parseStories(document.getText());
     const actions = getConfiguredActions();
+
+    const statuses = await resolveStatuses(stories.map((s) => s.id));
     const lenses: vscode.CodeLens[] = [];
 
     for (const story of stories) {
       const range = new vscode.Range(story.lineNumber, 0, story.lineNumber, 0);
+      const status = statuses.get(story.id) ?? null;
+      const hasImplementation = status !== null;
+
+      if (hasImplementation) {
+        lenses.push(
+          new vscode.CodeLens(range, {
+            title: statusLabel(status),
+            command: '',
+            tooltip: `Story ${story.id} status: ${status}`,
+          }),
+        );
+      }
 
       for (const action of actions) {
+        if (action.commandPrefix === '/bmad-bmm-create-story' && hasImplementation) {
+          continue;
+        }
+
         const args: CodeLensActionArgs = { action, story };
 
         lenses.push(
