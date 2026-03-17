@@ -10,10 +10,12 @@ Configurable action buttons appear above each story header:
 - **Create Story** — runs `/bmad-bmm-create-story` (hidden when an implementation file already exists)
 - **Copy Story** — copies the full story markdown to clipboard
 
-A colored status indicator is shown when a matching implementation artifact file exists:
+When a matching implementation artifact file exists, additional controls appear:
+- A **status badge** showing the current story status
+- A **Go to Story** button (hidden when status is `done`) that opens the implementation file
 
-| Status | Indicator | Meaning |
-|--------|-----------|---------|
+| Status | Badge | Meaning |
+|--------|-------|---------|
 | `ready-for-dev` | 🔵 ready-for-dev | Implementation file exists, development not started or in progress |
 | `review` | 🟡 review | Story is in code review |
 | `done` | 🟢 done | Story is complete |
@@ -68,7 +70,7 @@ Settings available under `bmadCodelens.*`:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `bmadCodelens.enabled` | `true` | Enable/disable CodeLens buttons |
-| `bmadCodelens.filePattern` | `**/*.md` | Glob for files to activate on |
+| `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMAD output folder that contains `implementation-artifacts/` |
 | `bmadCodelens.actions` | *(see below)* | Action buttons for epic story headers |
 
 ### Default actions (epic files)
