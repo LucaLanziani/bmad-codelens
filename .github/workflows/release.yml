@@ -37,6 +37,9 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "vsix_name=bmad-codelens-${VERSION}.vsix" >> "$GITHUB_OUTPUT"
 
+      - name: Test
+        run: npm test
+
       - name: Compile and package
         run: npm run release
 
