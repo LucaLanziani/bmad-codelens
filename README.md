@@ -37,8 +37,6 @@ Status is resolved by matching story IDs to implementation artifact files (e.g. 
 ## Build & Install
 
 ```bash
-cd tools/bmad-codelens
-
 # Install dependencies
 npm install
 
