@@ -2,7 +2,7 @@
   "name": "bmad-codelens",
   "displayName": "BMAD Story CodeLens",
   "description": "Adds CodeLens buttons above BMAD story headers for quick workflow actions",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "icon": "icon.png",
   "publisher": "LucaLanziani",
   "license": "MIT",
