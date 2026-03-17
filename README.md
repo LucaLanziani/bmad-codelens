@@ -104,6 +104,18 @@ npm run release
 npm run install:cursor
 ```
 
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and live in `src/__tests__/`. Fixture markdown files are in `src/__tests__/fixtures/`.
+
+```bash
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
 ## CI/CD
 
 A GitHub Actions workflow is available at `.github/workflows/release.yml`. It can be triggered manually from the Actions tab:
@@ -112,7 +124,7 @@ A GitHub Actions workflow is available at `.github/workflows/release.yml`. It ca
 2. Click **Run workflow**
 3. Select the version bump type (patch, minor, major)
 
-The workflow compiles, packages, bumps the version, creates a git tag, and publishes a GitHub Release with the `.vsix` attached.
+The workflow installs dependencies, runs tests, bumps the version, compiles, packages, creates a git tag, and publishes a GitHub Release with the `.vsix` attached.
 
 ## Available npm scripts
 
@@ -120,6 +132,8 @@ The workflow compiles, packages, bumps the version, creates a git tag, and publi
 |--------|-------------|
 | `npm run compile` | Compile TypeScript to `out/` |
 | `npm run watch` | Compile in watch mode |
+| `npm test` | Run unit tests once |
+| `npm run test:watch` | Run unit tests in watch mode |
 | `npm run package` | Package into `.vsix` file |
 | `npm run release` | Compile + package in one step |
 | `npm run install:cursor` | Install the `.vsix` in Cursor |
