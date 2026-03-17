@@ -14,9 +14,9 @@ A colored status indicator is shown when a matching implementation artifact file
 
 | Status | Indicator | Meaning |
 |--------|-----------|---------|
-| `ready-for-dev` | 🟦 ready-for-dev | Implementation file exists, development not started or in progress |
-| `review` | 🟨 review | Story is in code review |
-| `done` | 🟩 done | Story is complete |
+| `ready-for-dev` | 🔵 ready-for-dev | Implementation file exists, development not started or in progress |
+| `review` | 🟡 review | Story is in code review |
+| `done` | 🟢 done | Story is complete |
 
 ### Story implementation files (`# Story X.Y: Title`)
 
