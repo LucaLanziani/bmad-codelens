@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getOutputFolder } from './actions';
 
 export type StoryStatus = 'ready-for-dev' | 'review' | 'done';
 
@@ -9,17 +10,6 @@ const STATUS_ICONS: Record<StoryStatus, string> = {
   'review': '🟡',
   'done': '🟢',
 };
-
-function normalizeStatus(raw: string): StoryStatus {
-  const s = raw.trim().toLowerCase();
-  if (s === 'done') {
-    return 'done';
-  }
-  if (s === 'review' || s === 'code-review' || s === 'in-review') {
-    return 'review';
-  }
-  return 'ready-for-dev';
-}
 
 function storyIdToFilePrefix(id: string): string {
   return id.replace('.', '-') + '-';
@@ -41,7 +31,7 @@ export async function resolveStatuses(
   const result = new Map<string, ResolvedStatus | null>();
 
   const files = await vscode.workspace.findFiles(
-    '**/implementation-artifacts/*.md',
+    `${getOutputFolder()}/implementation-artifacts/*.md`,
     '**/node_modules/**',
   );
 
@@ -71,7 +61,8 @@ export async function resolveStatuses(
       const content = await vscode.workspace.fs.readFile(matchedUri);
       const text = Buffer.from(content).toString('utf-8');
       const match = STATUS_RE.exec(text);
-      const status = match ? normalizeStatus(match[1]) : 'ready-for-dev';
+      const s = match ? match[1].trim().toLowerCase() : '';
+      const status: StoryStatus = (s === 'done' || s === 'review') ? s : 'ready-for-dev';
       result.set(id, { status, fileUri: matchedUri });
     } catch {
       result.set(id, null);

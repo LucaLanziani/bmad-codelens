@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { parseStories } from './story-parser';
+import { getOutputFolder } from './actions';
 import { resolveStatuses, StoryStatus } from './status-resolver';
 
 const decorationTypes = new Map<StoryStatus, vscode.TextEditorDecorationType>();
@@ -89,7 +90,7 @@ export function registerGutterDecorator(context: vscode.ExtensionContext): void 
   );
 
   const watcher = vscode.workspace.createFileSystemWatcher(
-    '**/implementation-artifacts/*.md',
+    `${getOutputFolder()}/implementation-artifacts/*.md`,
   );
   context.subscriptions.push(
     watcher,

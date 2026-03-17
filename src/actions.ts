@@ -17,6 +17,12 @@ export function getConfiguredActions(): StoryAction[] {
   return config.get<StoryAction[]>('actions', getDefaultActions());
 }
 
+export function getOutputFolder(): string {
+  return vscode.workspace
+    .getConfiguration('bmadCodelens')
+    .get<string>('outputFolder', '_bmad-output');
+}
+
 export function getDefaultActions(): StoryAction[] {
   return [
     { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
