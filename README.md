@@ -4,14 +4,35 @@ VSCode/Cursor extension that adds CodeLens buttons above BMAD story headers for 
 
 ## Features
 
-**Epic files** (`### Story X.Y: Title` headers) get configurable action buttons:
-- Create Story, Dev Story, Copy Story
+### Epic files (`### Story X.Y: Title`)
 
-**Story implementation files** (`# Story X.Y: Title` + `Status:` line) get a status-dependent button:
-- Status `done` → **Code Review** (`/bmad-bmm-code-review`)
-- Any other status → **Dev Story** (`/bmad-bmm-dev-story`)
+Configurable action buttons appear above each story header:
+- **Create Story** — runs `/bmad-bmm-create-story` (hidden when an implementation file already exists)
+- **Copy Story** — copies the full story markdown to clipboard
 
-Clicking a button opens the Copilot Chat panel with the slash command pre-filled.
+A colored status indicator is shown when a matching implementation artifact file exists:
+
+| Status | Indicator | Meaning |
+|--------|-----------|---------|
+| `ready-for-dev` | 🟦 ready-for-dev | Implementation file exists, development not started or in progress |
+| `review` | 🟨 review | Story is in code review |
+| `done` | 🟩 done | Story is complete |
+
+### Story implementation files (`# Story X.Y: Title`)
+
+A single status-dependent action button appears above the header:
+
+| Status | Action | Command |
+|--------|--------|---------|
+| `ready-for-dev` | Dev Story | `/bmad-bmm-dev-story` |
+| `review` | Code Review | `/bmad-bmm-code-review` |
+| `done` | *(no action)* | — |
+
+### How it works
+
+Clicking a button opens the Copilot Chat panel with the slash command and story ID pre-filled. If chat is unavailable, the command is copied to the clipboard instead.
+
+Status is resolved by matching story IDs to implementation artifact files (e.g. Story `1.1` matches `1-1-*.md` in `implementation-artifacts/`), then reading the `Status:` field from the file.
 
 ## Build & Install
 
@@ -57,7 +78,6 @@ Settings available under `bmadCodelens.*`:
 ```json
 [
   { "label": "Create Story", "commandPrefix": "/bmad-bmm-create-story", "behavior": "chat" },
-  { "label": "Dev Story", "commandPrefix": "/bmad-bmm-dev-story", "behavior": "chat" },
   { "label": "Copy Story", "commandPrefix": "", "behavior": "clipboard" }
 ]
 ```
@@ -85,6 +105,16 @@ Then rebuild and reinstall:
 npm run release
 npm run install:cursor
 ```
+
+## CI/CD
+
+A GitHub Actions workflow is available at `.github/workflows/release.yml`. It can be triggered manually from the Actions tab:
+
+1. Go to **Actions** → **Release Extension**
+2. Click **Run workflow**
+3. Select the version bump type (patch, minor, major)
+
+The workflow compiles, packages, bumps the version, creates a git tag, and publishes a GitHub Release with the `.vsix` attached.
 
 ## Available npm scripts
 

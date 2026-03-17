@@ -20,7 +20,6 @@ export function getConfiguredActions(): StoryAction[] {
 export function getDefaultActions(): StoryAction[] {
   return [
     { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
-    { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'chat' },
     { label: 'Copy Story', commandPrefix: '', behavior: 'clipboard' },
   ];
 }
