@@ -36,10 +36,10 @@
           "default": true,
           "description": "Enable or disable BMAD Story CodeLens buttons"
         },
-        "bmadCodelens.filePattern": {
+        "bmadCodelens.outputFolder": {
           "type": "string",
-          "default": "**/*.md",
-          "description": "Glob pattern for files to activate CodeLens on"
+          "default": "_bmad-output",
+          "description": "Relative path to the BMAD output folder that contains implementation-artifacts/"
         },
         "bmadCodelens.actions": {
           "type": "array",
@@ -90,6 +90,8 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "package": "vsce package --no-dependencies",
     "install:cursor": "cursor --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
     "install:vscode": "code --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
@@ -99,6 +101,7 @@
     "@types/node": "^25.5.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.0"
   }
 }
