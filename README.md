@@ -1,6 +1,29 @@
 # BMAD Story CodeLens
 
-VSCode/Cursor extension that adds CodeLens buttons above BMAD story headers for quick workflow actions.
+A VS Code / Cursor extension that integrates with the [BMAD](https://docs.bmad-method.org/) AI-driven development workflow. It surfaces CodeLens action buttons directly above story headers in your markdown files, so you can trigger BMAD AI agent commands.
+
+<!-- TODO: add screenshot of the extension in action (epic file with CodeLens buttons) -->
+![Extension overview](docs/images/overview.png)
+
+## What it does
+
+When you open a BMAD **epic file** or a **story implementation file** in your editor, the extension reads story IDs and their statuses and injects clickable buttons (CodeLens) above each story header. Clicking a button opens GitHub Copilot Chat with the appropriate BMAD slash command and story ID pre-filled or falls back to copying the command to the clipboard if chat is unavailable.
+
+This removes the need to manually type story IDs and slash commands, keeping you in flow while working through a BMAD sprint.
+
+## Install
+
+Download the latest `.vsix` from the [Releases](https://github.com/LucaLanziani/bmad-codelens/releases) page, then install it:
+
+```bash
+# VS Code
+code --install-extension bmad-codelens-<version>.vsix
+
+# Cursor
+cursor --install-extension bmad-codelens-<version>.vsix
+```
+
+After installing, reload the editor window (`Cmd+Shift+P` → "Reload Window").
 
 ## Features
 
@@ -22,6 +45,9 @@ When a matching implementation artifact file exists, additional controls appear:
 
 ### Story implementation files (`# Story X.Y: Title`)
 
+<!-- TODO: add screenshot of story implementation file CodeLens button -->
+![Story file CodeLens](docs/images/story-codelens.png)
+
 A single status-dependent action button appears above the header:
 
 | Status | Action | Command |
@@ -36,33 +62,6 @@ Clicking a button opens the Copilot Chat panel with the slash command and story 
 
 Status is resolved by matching story IDs to implementation artifact files (e.g. Story `1.1` matches `1-1-*.md` in `implementation-artifacts/`), then reading the `Status:` field from the file.
 
-## Build & Install
-
-```bash
-# Install dependencies
-npm install
-
-# Compile TypeScript and package the .vsix
-npm run release
-
-# Install in Cursor
-npm run install:cursor
-
-# Or install in VSCode
-npm run install:vscode
-```
-
-After installing, reload the editor window (`Cmd+Shift+P` → "Reload Window").
-
-## Development
-
-```bash
-# Watch mode (recompiles on save)
-npm run watch
-```
-
-Press **F5** from the workspace root to launch an Extension Host window with the extension loaded (uses the launch config in `.vscode/launch.json`).
-
 ## Configuration
 
 Settings available under `bmadCodelens.*`:
@@ -71,72 +70,8 @@ Settings available under `bmadCodelens.*`:
 |---------|---------|-------------|
 | `bmadCodelens.enabled` | `true` | Enable/disable CodeLens buttons |
 | `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMAD output folder that contains `implementation-artifacts/` |
-| `bmadCodelens.actions` | *(see below)* | Action buttons for epic story headers |
 
-### Default actions (epic files)
+## Contributing
 
-```json
-[
-  { "label": "Create Story", "commandPrefix": "/bmad-bmm-create-story", "behavior": "chat" },
-  { "label": "Copy Story", "commandPrefix": "", "behavior": "clipboard" }
-]
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions, development setup, testing, and release process.
 
-Set `behavior` to `"clipboard"` to copy to clipboard instead of opening chat.
-
-## Versioning
-
-Bump the version with `npm version` before releasing:
-
-```bash
-# Patch bump: 0.1.0 → 0.1.1
-npm version patch
-
-# Minor bump: 0.1.0 → 0.2.0
-npm version minor
-
-# Major bump: 0.1.0 → 1.0.0
-npm version major
-```
-
-Then rebuild and reinstall:
-
-```bash
-npm run release
-npm run install:cursor
-```
-
-## Testing
-
-Unit tests are written with [Vitest](https://vitest.dev/) and live in `src/__tests__/`. Fixture markdown files are in `src/__tests__/fixtures/`.
-
-```bash
-# Run tests once
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-## CI/CD
-
-A GitHub Actions workflow is available at `.github/workflows/release.yml`. It can be triggered manually from the Actions tab:
-
-1. Go to **Actions** → **Release Extension**
-2. Click **Run workflow**
-3. Select the version bump type (patch, minor, major)
-
-The workflow installs dependencies, runs tests, bumps the version, compiles, packages, creates a git tag, and publishes a GitHub Release with the `.vsix` attached.
-
-## Available npm scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run compile` | Compile TypeScript to `out/` |
-| `npm run watch` | Compile in watch mode |
-| `npm test` | Run unit tests once |
-| `npm run test:watch` | Run unit tests in watch mode |
-| `npm run package` | Package into `.vsix` file |
-| `npm run release` | Compile + package in one step |
-| `npm run install:cursor` | Install the `.vsix` in Cursor |
-| `npm run install:vscode` | Install the `.vsix` in VSCode |

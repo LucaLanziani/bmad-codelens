@@ -1,4 +1,9 @@
 src/**
+out/__tests__/**
 tsconfig.json
 node_modules/**
 .vscode/**
+vitest.config.ts
+.github/
+package.json
+.gitignore
