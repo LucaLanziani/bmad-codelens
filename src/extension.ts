@@ -11,11 +11,12 @@ export function activate(context: vscode.ExtensionContext): void {
     .getConfiguration('bmadCodelens')
     .get<string>('outputFolder', '_bmad-output');
 
-  const selector: vscode.DocumentSelector = {
-    language: 'markdown',
-    scheme: 'file',
-    pattern: `${outputFolder}/**/*.md`,
-  };
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  const pattern = workspaceFolder
+    ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/**/*.md`)
+    : `**/${outputFolder}/**/*.md`;
+
+  const selector: vscode.DocumentSelector = { language: 'markdown', scheme: 'file', pattern };
 
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(selector, new EpicCodeLensProvider()),

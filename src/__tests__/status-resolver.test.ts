@@ -81,12 +81,12 @@ describe('resolveStatuses', () => {
     expect(resolved!.fileUri).toBe(uri);
   });
 
-  it('normalises "review" alias to "review"', async () => {
-    const uri = fixtureUri('2-1-review-alias.md');
+  it('status "ready-for-dev" should show the DevStory action', async () => {
+    const uri = fixtureUri('2-1-ready-for-dev.md');
     mockFindFiles.mockResolvedValue([uri]);
 
     const result = await resolveStatuses(['2.1']);
-    expect(result.get('2.1')!.status).toBe('review');
+    expect(result.get('2.1')!.status).toBe('ready-for-dev');
   });
 
   it('normalises mixed-case "Done" to "done"', async () => {
@@ -97,12 +97,12 @@ describe('resolveStatuses', () => {
     expect(result.get('3.1')!.status).toBe('done');
   });
 
-  it('defaults to "ready-for-dev" when fixture has no Status line', async () => {
+  it('show "unknown" status when fixture has no Status line', async () => {
     const uri = fixtureUri('4-1-no-status.md');
     mockFindFiles.mockResolvedValue([uri]);
 
     const result = await resolveStatuses(['4.1']);
-    expect(result.get('4.1')!.status).toBe('ready-for-dev');
+    expect(result.get('4.1')!.status).toBe('unknown');
   });
 
   it('returns null when the file does not exist on disk', async () => {

@@ -1,4 +1,4 @@
-export interface ParsedStory {
+interface ParsedStory {
   /** e.g. "2.2" */
   id: string;
   /** e.g. "User Search & Nomination Submission" */
@@ -9,7 +9,7 @@ export interface ParsedStory {
   lineNumber: number;
 }
 
-export interface ParsedStoryFile {
+interface ParsedStoryFile {
   /** e.g. "1.1" */
   id: string;
   /** e.g. "Monorepo & Development Environment Setup" */

@@ -23,7 +23,7 @@ export function getOutputFolder(): string {
     .get<string>('outputFolder', '_bmad-output');
 }
 
-export function getDefaultActions(): StoryAction[] {
+function getDefaultActions(): StoryAction[] {
   return [
     { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
     { label: 'Copy Story', commandPrefix: '', behavior: 'clipboard' },

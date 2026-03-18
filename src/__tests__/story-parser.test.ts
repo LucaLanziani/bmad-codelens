@@ -4,10 +4,10 @@ import { resolve } from 'path';
 import { parseStories, parseStoryFile } from '../story-parser';
 
 const EPICS_FILE = resolve(__dirname, 'fixtures/planning-artifacts/epics.md');
-const STORY_FILES_DIR = resolve(__dirname, 'fixtures/story-files');
+const ARTIFACTS_DIR = resolve(__dirname, 'fixtures/implementation-artifacts');
 
-function readStoryFile(filename: string): string {
-  return readFileSync(resolve(STORY_FILES_DIR, filename), 'utf-8');
+function readArtifact(filename: string): string {
+  return readFileSync(resolve(ARTIFACTS_DIR, filename), 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
@@ -109,11 +109,11 @@ describe('parseStoryFile', () => {
   });
 
   it('returns null when no story file header exists', () => {
-    expect(parseStoryFile(readStoryFile('story-wrong-level.md'))).toBeNull();
+    expect(parseStoryFile('## Story 1.1: Wrong Level\n\nNot matched.')).toBeNull();
   });
 
-  it('parses a valid story file with status', () => {
-    const result = parseStoryFile(readStoryFile('story-valid-with-status.md'));
+  it('parses id, title, status and lineNumber from 1-1-my-feature.md', () => {
+    const result = parseStoryFile(readArtifact('1-1-my-feature.md'));
 
     expect(result).not.toBeNull();
     expect(result!.id).toBe('1.1');
@@ -122,37 +122,35 @@ describe('parseStoryFile', () => {
     expect(result!.lineNumber).toBe(0);
   });
 
-  it('defaults status to "draft" when no Status line present', () => {
-    const result = parseStoryFile(readStoryFile('story-no-status.md'));
-    expect(result!.status).toBe('draft');
-  });
+  it('parses review status from 1-2-feature-b.md', () => {
+    const result = parseStoryFile(readArtifact('1-2-feature-b.md'));
 
-  it('parses status case-insensitively', () => {
-    const result = parseStoryFile(readStoryFile('story-mixed-case-status.md'));
-    expect(result!.status).toBe('in-progress');
-  });
-
-  it('trims whitespace from status value', () => {
-    const result = parseStoryFile(readStoryFile('story-whitespace-status.md'));
-    expect(result!.status).toBe('done');
-  });
-
-  it('only looks for status within 4 lines after the header', () => {
-    const result = parseStoryFile(readStoryFile('story-far-status.md'));
-    expect(result!.status).toBe('draft');
-  });
-
-  it('finds status within the 4-line window', () => {
-    const result = parseStoryFile(readStoryFile('story-near-status.md'));
+    expect(result!.id).toBe('1.2');
+    expect(result!.title).toBe('Feature B');
     expect(result!.status).toBe('review');
   });
 
-  it('returns the first story header when header is not on the first line', () => {
-    const result = parseStoryFile(readStoryFile('story-offset-header.md'));
+  it('parses ready-for-dev status from 2-1-ready-for-dev.md', () => {
+    const result = parseStoryFile(readArtifact('2-1-ready-for-dev.md'));
 
-    expect(result).not.toBeNull();
+    expect(result!.id).toBe('2.1');
+    expect(result!.title).toBe('Ready for Dev');
+    expect(result!.status).toBe('ready-for-dev');
+  });
+
+  it('lowercases status value (Done → done) from 3-1-done-mixed-case.md', () => {
+    const result = parseStoryFile(readArtifact('3-1-done-mixed-case.md'));
+
     expect(result!.id).toBe('3.1');
-    expect(result!.lineNumber).toBe(1);
+    expect(result!.title).toBe('Mixed Case Done');
     expect(result!.status).toBe('done');
+  });
+
+  it('defaults status to "draft" when no Status line present (4-1-no-status.md)', () => {
+    const result = parseStoryFile(readArtifact('4-1-no-status.md'));
+
+    expect(result!.id).toBe('4.1');
+    expect(result!.title).toBe('No Status');
+    expect(result!.status).toBe('draft');
   });
 });

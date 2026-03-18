@@ -3,4 +3,4 @@
 ## Overview
 
 This story file intentionally has no Status line.
-It should default to "ready-for-dev".
+No CodeLens buttons should be shown for this story.

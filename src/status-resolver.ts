@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getOutputFolder } from './actions';
 
-export type StoryStatus = 'ready-for-dev' | 'review' | 'done';
+type StoryStatus = 'ready-for-dev' | 'review' | 'done'  | 'unknown';
 
 const STATUS_RE = /^Status:\s*(.+)$/im;
 
@@ -9,13 +9,14 @@ const STATUS_ICONS: Record<StoryStatus, string> = {
   'ready-for-dev': '🔵',
   'review': '🟡',
   'done': '🟢',
+  'unknown': '⚪',
 };
 
 function storyIdToFilePrefix(id: string): string {
   return id.replace('.', '-') + '-';
 }
 
-export interface ResolvedStatus {
+interface ResolvedStatus {
   status: StoryStatus;
   fileUri: vscode.Uri;
 }
@@ -61,8 +62,8 @@ export async function resolveStatuses(
       const content = await vscode.workspace.fs.readFile(matchedUri);
       const text = Buffer.from(content).toString('utf-8');
       const match = STATUS_RE.exec(text);
-      const s = match ? match[1].trim().toLowerCase() : '';
-      const status: StoryStatus = (s === 'done' || s === 'review') ? s : 'ready-for-dev';
+      const raw = match ? match[1].trim().toLowerCase() : 'unknown';
+      const status: StoryStatus = (raw in STATUS_ICONS) ? raw as StoryStatus : 'unknown';
       result.set(id, { status, fileUri: matchedUri });
     } catch {
       result.set(id, null);

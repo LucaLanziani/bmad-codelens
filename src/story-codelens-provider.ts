@@ -28,9 +28,11 @@ export class EpicCodeLensProvider implements vscode.CodeLensProvider, vscode.Dis
       }),
     );
 
-    const watcher = vscode.workspace.createFileSystemWatcher(
-      `${getOutputFolder()}/implementation-artifacts/*.md`,
-    );
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    const watchGlob = workspaceFolder
+      ? new vscode.RelativePattern(workspaceFolder, `${getOutputFolder()}/implementation-artifacts/*.md`)
+      : `**/${getOutputFolder()}/implementation-artifacts/*.md`;
+    const watcher = vscode.workspace.createFileSystemWatcher(watchGlob);
     watcher.onDidChange(fire, undefined, this._disposables);
     watcher.onDidCreate(fire, undefined, this._disposables);
     watcher.onDidDelete(fire, undefined, this._disposables);
@@ -136,7 +138,7 @@ export class StoryFileCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     const storyFile = parseStoryFile(document.getText());
-    if (!storyFile || storyFile.status === 'done') {
+    if (!storyFile || storyFile.status === 'done' || storyFile.status === 'draft') {
       return [];
     }
 
