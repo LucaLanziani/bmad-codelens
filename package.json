@@ -2,7 +2,7 @@
   "name": "bmad-codelens",
   "displayName": "BMad CodeLens",
   "description": "Adds CodeLens buttons above BMad story headers for quick workflow actions",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "icon": "docs/images/icon.png",
   "publisher": "LucaLanziani",
   "license": "MIT",
@@ -109,11 +109,19 @@
             },
             "behavior": {
               "type": "string",
-              "enum": ["clipboard", "chat", "chat-submit"],
+              "enum": [
+                "clipboard",
+                "chat",
+                "chat-submit"
+              ],
               "description": "Action behavior"
             }
           },
-          "required": ["label", "commandPrefix", "behavior"],
+          "required": [
+            "label",
+            "commandPrefix",
+            "behavior"
+          ],
           "description": "Action shown on story implementation files with status 'ready-for-dev'"
         },
         "bmadCodelens.codeReviewAction": {
@@ -134,11 +142,19 @@
             },
             "behavior": {
               "type": "string",
-              "enum": ["clipboard", "chat", "chat-submit"],
+              "enum": [
+                "clipboard",
+                "chat",
+                "chat-submit"
+              ],
               "description": "Action behavior"
             }
           },
-          "required": ["label", "commandPrefix", "behavior"],
+          "required": [
+            "label",
+            "commandPrefix",
+            "behavior"
+          ],
           "description": "Action shown on story implementation files with status 'review'"
         }
       }
