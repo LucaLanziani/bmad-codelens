@@ -432,3 +432,5 @@ So that I can plan when to recognize my colleagues.
 **Given** I attempt to submit a nomination that exceeds the rate limit
 **When** the API returns a 409 Conflict
 **Then** the error is displayed as a JSON error with a clear message
+
+### Story 2.4a: Story with Letter Suffix

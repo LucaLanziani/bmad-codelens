@@ -20,10 +20,10 @@ interface ParsedStoryFile {
   lineNumber: number;
 }
 
-const STORY_HEADER_RE = /^###\s+Story\s+(\d+\.\d+):\s+(.+)$/;
+const STORY_HEADER_RE = /^###\s+Story\s+(\d+\.\d+[a-z]?):\s+(.+)$/;
 const SECTION_BOUNDARY_RE = /^#{2,3}\s/;
 
-const STORY_FILE_HEADER_RE = /^#\s+Story\s+(\d+\.\d+):\s+(.+)$/;
+const STORY_FILE_HEADER_RE = /^#\s+Story\s+(\d+\.\d+[a-z]?):\s+(.+)$/;
 const STATUS_RE = /^Status:\s*(.+)$/i;
 
 /** Parse inline stories from epic files (### Story X.Y: Title) */

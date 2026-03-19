@@ -31,8 +31,8 @@ Details.`)).toEqual([]);
   it('parses all stories from epics.md', () => {
     const result = parseStories(readFileSync(EPICS_FILE, 'utf-8'));
 
-    expect(result).toHaveLength(6);
-    expect(result.map(s => s.id)).toEqual(['1.1', '1.2', '1.3', '2.1', '2.2', '2.3']);
+    expect(result).toHaveLength(7);
+    expect(result.map(s => s.id)).toEqual(['1.1', '1.2', '1.3', '2.1', '2.2', '2.3', '2.4a']);
   });
 
   it('captures correct ids and titles', () => {
