@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { parseStories, parseStoryFile } from './story-parser';
-import { getConfiguredActions, getOutputFolder, StoryAction, StoryRef } from './actions';
+import { getConfiguredActions, getCodeReviewAction, getDevStoryAction, getOutputFolder, StoryAction, StoryRef } from './actions';
 import { resolveStatuses, statusLabel } from './status-resolver';
 
 export interface CodeLensActionArgs {
@@ -145,9 +145,7 @@ export class StoryFileCodeLensProvider implements vscode.CodeLensProvider {
     const range = new vscode.Range(storyFile.lineNumber, 0, storyFile.lineNumber, 0);
     const isReview = storyFile.status === 'review';
 
-    const action: StoryAction = isReview
-      ? { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'chat' }
-      : { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'chat' };
+    const action: StoryAction = isReview ? getCodeReviewAction() : getDevStoryAction();
 
     const story = { id: storyFile.id, title: storyFile.title, fullText: '' };
     const args: CodeLensActionArgs = { action, story };

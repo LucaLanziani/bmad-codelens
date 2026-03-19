@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 export interface StoryAction {
   label: string;
   commandPrefix: string;
-  behavior: 'clipboard' | 'chat';
+  behavior: 'clipboard' | 'chat' | 'chat-submit';
 }
 
 export interface StoryRef {
@@ -23,6 +23,18 @@ export function getOutputFolder(): string {
     .get<string>('outputFolder', '_bmad-output');
 }
 
+export function getDevStoryAction(): StoryAction {
+  return vscode.workspace
+    .getConfiguration('bmadCodelens')
+    .get<StoryAction>('devStoryAction', { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'chat' });
+}
+
+export function getCodeReviewAction(): StoryAction {
+  return vscode.workspace
+    .getConfiguration('bmadCodelens')
+    .get<StoryAction>('codeReviewAction', { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'chat' });
+}
+
 function getDefaultActions(): StoryAction[] {
   return [
     { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
@@ -38,8 +50,8 @@ export async function executeAction(
     ? `${action.commandPrefix} ${story.id}`
     : story.fullText;
 
-  if (action.behavior === 'chat') {
-    const opened = await openChatWithQuery(text);
+  if (action.behavior === 'chat' || action.behavior === 'chat-submit') {
+    const opened = await openChatWithQuery(text, action.behavior === 'chat-submit');
     if (!opened) {
       await vscode.env.clipboard.writeText(text);
       vscode.window.showInformationMessage(
@@ -55,7 +67,7 @@ export async function executeAction(
   );
 }
 
-async function openChatWithQuery(query: string): Promise<boolean> {
+async function openChatWithQuery(query: string, submit = false): Promise<boolean> {
   const chatCommands = [
     'workbench.action.chat.open',
     'workbench.action.chat.newChat',
@@ -63,7 +75,7 @@ async function openChatWithQuery(query: string): Promise<boolean> {
 
   for (const cmd of chatCommands) {
     try {
-      await vscode.commands.executeCommand(cmd, { query });
+      await vscode.commands.executeCommand(cmd, { query, isPartialQuery: !submit });
       return true;
     } catch {
       // command not available, try next
