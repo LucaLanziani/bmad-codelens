@@ -1,7 +1,7 @@
 {
   "name": "bmad-codelens",
-  "displayName": "BMAD CodeLens",
-  "description": "Adds CodeLens buttons above BMAD story headers for quick workflow actions",
+  "displayName": "BMad CodeLens",
+  "description": "Adds CodeLens buttons above BMad story headers for quick workflow actions",
   "version": "0.4.1",
   "icon": "docs/images/icon.png",
   "publisher": "LucaLanziani",
@@ -15,7 +15,9 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "AI",
+    "Chat"
   ],
   "activationEvents": [
     "onLanguage:markdown"
@@ -25,21 +27,21 @@
     "commands": [
       {
         "command": "bmadCodelens.executeAction",
-        "title": "BMAD: Execute Story Action"
+        "title": "BMad: Execute Story Action"
       }
     ],
     "configuration": {
-      "title": "BMAD CodeLens",
+      "title": "BMad CodeLens",
       "properties": {
         "bmadCodelens.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable BMAD Story CodeLens buttons"
+          "description": "Enable or disable BMad Story CodeLens buttons"
         },
         "bmadCodelens.outputFolder": {
           "type": "string",
           "default": "_bmad-output",
-          "description": "Relative path to the BMAD output folder that contains implementation-artifacts/"
+          "description": "Relative path to the BMad output folder that contains implementation-artifacts/"
         },
         "bmadCodelens.actions": {
           "type": "array",
@@ -70,9 +72,15 @@
                 "type": "string",
                 "enum": [
                   "clipboard",
-                  "chat"
+                  "chat",
+                  "chat-submit"
                 ],
-                "description": "Action behavior: copy to clipboard or attempt to open chat"
+                "enumDescriptions": [
+                  "Copy the command to the clipboard",
+                  "Open chat with the command pre-filled (user presses Enter to submit)",
+                  "Open chat and submit the command immediately"
+                ],
+                "description": "Action behavior: copy to clipboard, open chat pre-filled, or open chat and submit"
               }
             },
             "required": [
@@ -82,6 +90,56 @@
             ]
           },
           "description": "List of actions to show as CodeLens buttons above each story"
+        },
+        "bmadCodelens.devStoryAction": {
+          "type": "object",
+          "default": {
+            "label": "Dev Story",
+            "commandPrefix": "/bmad-bmm-dev-story",
+            "behavior": "chat"
+          },
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Button label shown in CodeLens"
+            },
+            "commandPrefix": {
+              "type": "string",
+              "description": "Slash command prefix sent to chat"
+            },
+            "behavior": {
+              "type": "string",
+              "enum": ["clipboard", "chat", "chat-submit"],
+              "description": "Action behavior"
+            }
+          },
+          "required": ["label", "commandPrefix", "behavior"],
+          "description": "Action shown on story implementation files with status 'ready-for-dev'"
+        },
+        "bmadCodelens.codeReviewAction": {
+          "type": "object",
+          "default": {
+            "label": "Code Review",
+            "commandPrefix": "/bmad-bmm-code-review",
+            "behavior": "chat"
+          },
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Button label shown in CodeLens"
+            },
+            "commandPrefix": {
+              "type": "string",
+              "description": "Slash command prefix sent to chat"
+            },
+            "behavior": {
+              "type": "string",
+              "enum": ["clipboard", "chat", "chat-submit"],
+              "description": "Action behavior"
+            }
+          },
+          "required": ["label", "commandPrefix", "behavior"],
+          "description": "Action shown on story implementation files with status 'review'"
         }
       }
     }
@@ -95,6 +153,8 @@
     "package": "vsce package --no-dependencies",
     "install:cursor": "cursor --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
     "install:vscode": "code --install-extension bmad-codelens-$(node -p \"require('./package.json').version\").vsix",
+    "uninstall:cursor": "cursor --uninstall-extension LucaLanziani.bmad-codelens",
+    "uninstall:vscode": "code --uninstall-extension LucaLanziani.bmad-codelens",
     "release": "npm run compile && npm run package"
   },
   "devDependencies": {
