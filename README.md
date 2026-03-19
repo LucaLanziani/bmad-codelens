@@ -1,15 +1,15 @@
-# BMAD Story CodeLens
+# BMad CodeLens
 
-A VS Code / Cursor extension that integrates with the [BMAD](https://docs.bmad-method.org/) AI-driven development workflow. It surfaces CodeLens action buttons directly above story headers in your markdown files, so you can trigger BMAD AI agent commands.
+A VS Code / Cursor extension that integrates with the [BMad](https://docs.bmad-method.org/) AI-driven development workflow. It surfaces CodeLens action buttons directly above story headers in your markdown files, so you can trigger BMad AI agent commands.
 
 <!-- TODO: add screenshot of the extension in action (epic file with CodeLens buttons) -->
 ![Extension overview](docs/images/overview.png)
 
 ## What it does
 
-When you open a BMAD **epic file** or a **story implementation file** in your editor, the extension reads story IDs and their statuses and injects clickable buttons (CodeLens) above each story header. Clicking a button opens GitHub Copilot Chat with the appropriate BMAD slash command and story ID pre-filled or falls back to copying the command to the clipboard if chat is unavailable.
+When you open a BMad **epic file** or a **story implementation file** in your editor, the extension reads story IDs and their statuses and injects clickable buttons (CodeLens) above each story header. Clicking a button opens GitHub Copilot Chat with the appropriate BMad slash command and story ID pre-filled or falls back to copying the command to the clipboard if chat is unavailable.
 
-This removes the need to manually type story IDs and slash commands, keeping you in flow while working through a BMAD sprint.
+This removes the need to manually type story IDs and slash commands, keeping you in flow while working through a BMad sprint.
 
 ## Install
 
@@ -69,7 +69,7 @@ Settings available under `bmadCodelens.*`:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `bmadCodelens.enabled` | `true` | Enable/disable CodeLens buttons |
-| `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMAD output folder that contains `implementation-artifacts/` |
+| `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMad output folder that contains `implementation-artifacts/` |
 
 ## Contributing
 
