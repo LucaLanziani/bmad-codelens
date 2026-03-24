@@ -31,18 +31,18 @@ export function getOutputFolder(): string {
 export function getDevStoryAction(): StoryAction {
   return vscode.workspace
     .getConfiguration('bmadCodelens')
-    .get<StoryAction>('devStoryAction', { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'chat' });
+    .get<StoryAction>('devStoryAction', { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'new-chat' });
 }
 
 export function getCodeReviewAction(): StoryAction {
   return vscode.workspace
     .getConfiguration('bmadCodelens')
-    .get<StoryAction>('codeReviewAction', { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'chat' });
+    .get<StoryAction>('codeReviewAction', { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'new-chat' });
 }
 
 function getDefaultActions(): StoryAction[] {
   return [
-    { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
+    { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'new-chat' },
     { label: 'Copy Story', commandPrefix: '', behavior: 'clipboard' },
   ];
 }

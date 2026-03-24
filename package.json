@@ -59,7 +59,7 @@
             {
               "label": "Create Story",
               "commandPrefix": "/bmad-bmm-create-story",
-              "behavior": "chat"
+              "behavior": "new-chat"
             },
             {
               "label": "Copy Story",
@@ -110,7 +110,7 @@
           "default": {
             "label": "Dev Story",
             "commandPrefix": "/bmad-bmm-dev-story",
-            "behavior": "chat"
+            "behavior": "new-chat"
           },
           "properties": {
             "label": {
@@ -145,7 +145,7 @@
           "default": {
             "label": "Code Review",
             "commandPrefix": "/bmad-bmm-code-review",
-            "behavior": "chat"
+            "behavior": "new-chat"
           },
           "properties": {
             "label": {
