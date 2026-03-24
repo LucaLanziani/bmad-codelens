@@ -3,7 +3,12 @@ import * as vscode from 'vscode';
 export interface StoryAction {
   label: string;
   commandPrefix: string;
-  behavior: 'clipboard' | 'chat' | 'chat-submit';
+  behavior: 'clipboard' | 'chat' | 'chat-submit' | 'new-chat' | 'new-chat-submit';
+}
+
+interface ChatOpenOptions {
+  newChat: boolean;
+  submit: boolean;
 }
 
 export interface StoryRef {
@@ -52,36 +57,75 @@ export async function executeAction(
   action: StoryAction,
   story: StoryRef,
 ): Promise<void> {
-  const text = action.commandPrefix
-    ? `${action.commandPrefix} ${story.id}`
-    : story.fullText;
+  const text = buildActionText(action, story);
 
-  if (action.behavior === 'chat' || action.behavior === 'chat-submit') {
-    const opened = await openChatWithQuery(text, action.behavior === 'chat-submit');
-    if (!opened) {
-      await vscode.env.clipboard.writeText(text);
-      vscode.window.showInformationMessage(
-        'Could not open chat — command copied to clipboard instead',
-      );
+  switch (action.behavior) {
+    case 'clipboard':
+      await copyActionText(text, copiedToClipboardMessage(action));
+      return;
+    case 'chat':
+    case 'chat-submit':
+    case 'new-chat':
+    case 'new-chat-submit': {
+      const opened = await openChatWithQuery(text, getChatOpenOptions(action.behavior));
+      if (!opened) {
+        await copyActionText(text, chatOpenFailedMessage(action));
+      }
+      return;
     }
-    return;
   }
-
-  await vscode.env.clipboard.writeText(text);
-  vscode.window.showInformationMessage(
-    'Story text copied to clipboard',
-  );
 }
 
-async function openChatWithQuery(query: string, submit = false): Promise<boolean> {
-  try {
-    await vscode.commands.executeCommand('workbench.action.chat.newChat');
-  } catch {
-    // newChat not available, fall through to open directly
+function buildActionText(action: StoryAction, story: StoryRef): string {
+  return action.commandPrefix
+    ? `${action.commandPrefix} ${story.id}`
+    : story.fullText;
+}
+
+function getChatOpenOptions(behavior: Exclude<StoryAction['behavior'], 'clipboard'>): ChatOpenOptions {
+  switch (behavior) {
+    case 'chat':
+      return { newChat: false, submit: false };
+    case 'chat-submit':
+      return { newChat: false, submit: true };
+    case 'new-chat':
+      return { newChat: true, submit: false };
+    case 'new-chat-submit':
+      return { newChat: true, submit: true };
+  }
+}
+
+function copiedToClipboardMessage(action: StoryAction): string {
+  return action.commandPrefix
+    ? 'Command copied to clipboard'
+    : 'Story text copied to clipboard';
+}
+
+function chatOpenFailedMessage(action: StoryAction): string {
+  return action.commandPrefix
+    ? 'Could not open chat; command copied to clipboard instead'
+    : 'Could not open chat; story text copied to clipboard instead';
+}
+
+async function copyActionText(text: string, message: string): Promise<void> {
+  await vscode.env.clipboard.writeText(text);
+  vscode.window.showInformationMessage(message);
+}
+
+async function openChatWithQuery(query: string, options: ChatOpenOptions): Promise<boolean> {
+  if (options.newChat) {
+    try {
+      await vscode.commands.executeCommand('workbench.action.chat.newChat');
+    } catch {
+      // newChat not available, fall through to open directly
+    }
   }
 
   try {
-    await vscode.commands.executeCommand('workbench.action.chat.open', { query, isPartialQuery: !submit });
+    await vscode.commands.executeCommand('workbench.action.chat.open', {
+      query,
+      isPartialQuery: !options.submit,
+    });
     return true;
   } catch {
     return false;
