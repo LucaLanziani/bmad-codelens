@@ -38,29 +38,11 @@ async function getStoryCounts(): Promise<{ done: number; inProgress: number; tot
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  const config = vscode.workspace.getConfiguration('bmadCodelens');
-  const outputFolder = config.get<string>('outputFolder', '_bmad-output');
-  const bmadFolder = config.get<string>('bmadFolder', '_bmad');
-
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  const pattern = workspaceFolder
-    ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/**/*.md`)
-    : `**/${outputFolder}/**/*.md`;
-
-  const selector: vscode.DocumentSelector = { language: 'markdown', scheme: 'file', pattern };
-
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(selector, new EpicCodeLensProvider()),
-    vscode.languages.registerCodeLensProvider(selector, new StoryFileCodeLensProvider()),
-  );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('bmadCodelens.installBmad', () => installBmad()),
   );
-
-  const bmadFolderPath = workspaceFolder
-    ? path.join(workspaceFolder.uri.fsPath, bmadFolder)
-    : null;
 
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
   statusBarItem.text = '$(cloud-download) Install BMad';
@@ -76,55 +58,90 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     '- **total**: all implementation artifact files',
   );
 
-  async function updateProgressBar(): Promise<void> {
-    const { done, inProgress, total } = await getStoryCounts();
-    progressBarItem.text = `$(checklist) ${done}/${inProgress}/${total}`;
-  }
-
-  async function updateStatusBarVisibility(): Promise<void> {
-    const isInstalled = bmadFolderPath ? fs.existsSync(bmadFolderPath) : false;
-    if (isInstalled) {
-      statusBarItem.hide();
-      await updateProgressBar();
-      progressBarItem.show();
-    } else {
-      progressBarItem.hide();
-      statusBarItem.show();
-    }
-  }
-
-  await updateStatusBarVisibility();
   context.subscriptions.push(statusBarItem, progressBarItem);
 
-  if (bmadFolderPath) {
-    // Watch for the directory itself being created/deleted
-    const dirWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspaceFolder!, bmadFolder),
-    );
-    dirWatcher.onDidCreate(() => updateStatusBarVisibility());
-    dirWatcher.onDidDelete(() => updateStatusBarVisibility());
-    context.subscriptions.push(dirWatcher);
+  // Holds disposables that must be rebuilt when config changes
+  let configDisposables: vscode.Disposable[] = [];
 
-    // Watch for files inside the directory (e.g. after npx bmad-method install)
-    const contentsWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspaceFolder!, `${bmadFolder}/**`),
+  async function setup(): Promise<void> {
+    for (const d of configDisposables) { d.dispose(); }
+    configDisposables = [];
+
+    const config = vscode.workspace.getConfiguration('bmadCodelens');
+    const outputFolder = config.get<string>('outputFolder', '_bmad-output');
+    const bmadFolder = config.get<string>('bmadFolder', '_bmad');
+
+    const pattern = workspaceFolder
+      ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/**/*.md`)
+      : `**/${outputFolder}/**/*.md`;
+    const selector: vscode.DocumentSelector = { language: 'markdown', scheme: 'file', pattern };
+
+    configDisposables.push(
+      vscode.languages.registerCodeLensProvider(selector, new EpicCodeLensProvider()),
+      vscode.languages.registerCodeLensProvider(selector, new StoryFileCodeLensProvider()),
     );
-    contentsWatcher.onDidCreate(() => updateStatusBarVisibility());
-    contentsWatcher.onDidDelete(() => updateStatusBarVisibility());
-    context.subscriptions.push(contentsWatcher);
+
+    const bmadFolderPath = workspaceFolder
+      ? path.join(workspaceFolder.uri.fsPath, bmadFolder)
+      : null;
+
+    async function updateProgressBar(): Promise<void> {
+      const { done, inProgress, total } = await getStoryCounts();
+      progressBarItem.text = `$(checklist) ${done}/${inProgress}/${total}`;
+    }
+
+    async function updateStatusBarVisibility(): Promise<void> {
+      const isInstalled = bmadFolderPath ? fs.existsSync(bmadFolderPath) : false;
+      if (isInstalled) {
+        statusBarItem.hide();
+        await updateProgressBar();
+        progressBarItem.show();
+      } else {
+        progressBarItem.hide();
+        statusBarItem.show();
+      }
+    }
+
+    await updateStatusBarVisibility();
+
+    if (bmadFolderPath) {
+      const dirWatcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(workspaceFolder!, bmadFolder),
+      );
+      dirWatcher.onDidCreate(() => { void updateStatusBarVisibility(); });
+      dirWatcher.onDidDelete(() => { void updateStatusBarVisibility(); });
+      configDisposables.push(dirWatcher);
+
+      const contentsWatcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(workspaceFolder!, `${bmadFolder}/**`),
+      );
+      contentsWatcher.onDidCreate(() => { void updateStatusBarVisibility(); });
+      contentsWatcher.onDidDelete(() => { void updateStatusBarVisibility(); });
+      configDisposables.push(contentsWatcher);
+    }
+
+    const artifactWatcher = vscode.workspace.createFileSystemWatcher(
+      workspaceFolder
+        ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/implementation-artifacts/*.md`)
+        : `**/${outputFolder}/implementation-artifacts/*.md`,
+    );
+    const refreshProgress = (): void => { void updateProgressBar(); };
+    artifactWatcher.onDidCreate(refreshProgress);
+    artifactWatcher.onDidChange(refreshProgress);
+    artifactWatcher.onDidDelete(refreshProgress);
+    configDisposables.push(artifactWatcher);
   }
 
-  // Refresh progress counts when implementation artifact files change
-  const artifactWatcher = vscode.workspace.createFileSystemWatcher(
-    workspaceFolder
-      ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/implementation-artifacts/*.md`)
-      : `**/${outputFolder}/implementation-artifacts/*.md`,
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration('bmadCodelens')) {
+        void setup();
+      }
+    }),
+    new vscode.Disposable(() => { for (const d of configDisposables) { d.dispose(); } }),
   );
-  const refreshProgress = (): void => { void updateProgressBar(); };
-  artifactWatcher.onDidCreate(refreshProgress);
-  artifactWatcher.onDidChange(refreshProgress);
-  artifactWatcher.onDidDelete(refreshProgress);
-  context.subscriptions.push(artifactWatcher);
+
+  await setup();
 }
 
 export function deactivate(): void {
