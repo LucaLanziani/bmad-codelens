@@ -74,18 +74,16 @@ export async function executeAction(
 }
 
 async function openChatWithQuery(query: string, submit = false): Promise<boolean> {
-  const chatCommands = [
-    'workbench.action.chat.newChat',
-    'workbench.action.chat.open',
-  ];
-
-  for (const cmd of chatCommands) {
-    try {
-      await vscode.commands.executeCommand(cmd, { query, isPartialQuery: !submit });
-      return true;
-    } catch {
-      // command not available, try next
-    }
+  try {
+    await vscode.commands.executeCommand('workbench.action.chat.newChat');
+  } catch {
+    // newChat not available, fall through to open directly
   }
-  return false;
+
+  try {
+    await vscode.commands.executeCommand('workbench.action.chat.open', { query, isPartialQuery: !submit });
+    return true;
+  } catch {
+    return false;
+  }
 }
