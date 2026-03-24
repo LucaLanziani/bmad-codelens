@@ -83,12 +83,16 @@
                 "enum": [
                   "clipboard",
                   "chat",
-                  "chat-submit"
+                  "chat-submit",
+                  "new-chat",
+                  "new-chat-submit"
                 ],
                 "enumDescriptions": [
                   "Copy the command to the clipboard",
                   "Open chat with the command pre-filled (user presses Enter to submit)",
-                  "Open chat and submit the command immediately"
+                  "Open chat and submit the command immediately",
+                  "Open a new chat session with the command pre-filled (user presses Enter to submit)",
+                  "Open a new chat session and submit the command immediately"
                 ],
                 "description": "Action behavior: copy to clipboard, open chat pre-filled, or open chat and submit"
               }
@@ -122,7 +126,9 @@
               "enum": [
                 "clipboard",
                 "chat",
-                "chat-submit"
+                "chat-submit",
+                "new-chat",
+                "new-chat-submit"
               ],
               "description": "Action behavior"
             }
@@ -155,7 +161,9 @@
               "enum": [
                 "clipboard",
                 "chat",
-                "chat-submit"
+                "chat-submit",
+                "new-chat",
+                "new-chat-submit"
               ],
               "description": "Action behavior"
             }

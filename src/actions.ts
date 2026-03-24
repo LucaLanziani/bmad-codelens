@@ -122,6 +122,7 @@ async function openChatWithQuery(query: string, options: ChatOpenOptions): Promi
   }
 
   try {
+    // VS Code currently exposes this flow via built-in commands rather than a typed chat API.
     await vscode.commands.executeCommand('workbench.action.chat.open', {
       query,
       isPartialQuery: !options.submit,
