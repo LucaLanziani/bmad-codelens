@@ -42,6 +42,12 @@ function getDefaultActions(): StoryAction[] {
   ];
 }
 
+export function installBmad(): void {
+  const terminal = vscode.window.createTerminal({ name: 'BMad Install' });
+  terminal.show();
+  terminal.sendText('npx bmad-method install');
+}
+
 export async function executeAction(
   action: StoryAction,
   story: StoryRef,

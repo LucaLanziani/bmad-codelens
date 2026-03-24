@@ -4,7 +4,7 @@ import {
   StoryFileCodeLensProvider,
   CodeLensActionArgs,
 } from './story-codelens-provider';
-import { executeAction } from './actions';
+import { installBmad } from './actions';
 
 export function activate(context: vscode.ExtensionContext): void {
   const outputFolder = vscode.workspace
@@ -24,11 +24,15 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      'bmadCodelens.executeAction',
-      (args: CodeLensActionArgs) => executeAction(args.action, args.story),
-    ),
+    vscode.commands.registerCommand('bmadCodelens.installBmad', () => installBmad()),
   );
+
+  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+  statusBarItem.text = '$(cloud-download) Install BMad';
+  statusBarItem.tooltip = 'Run npx bmad-method install';
+  statusBarItem.command = 'bmadCodelens.installBmad';
+  statusBarItem.show();
+  context.subscriptions.push(statusBarItem);
 
 }
 

@@ -20,14 +20,15 @@
     "Chat"
   ],
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onCommand:bmadCodelens.installBmad"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "bmadCodelens.executeAction",
-        "title": "BMad: Execute Story Action"
+        "command": "bmadCodelens.installBmad",
+        "title": "BMad: Install"
       }
     ],
     "configuration": {
