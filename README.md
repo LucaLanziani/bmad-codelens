@@ -70,6 +70,55 @@ Settings available under `bmadCodelens.*`:
 |---------|---------|-------------|
 | `bmadCodelens.enabled` | `true` | Enable/disable CodeLens buttons |
 | `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMad output folder that contains `implementation-artifacts/` |
+| `bmadCodelens.bmadFolder` | `_bmad` | Relative path to the BMad installation folder. When this folder exists, the "Install BMad" status bar button is hidden. |
+| `bmadCodelens.actions` | *(see below)* | List of CodeLens buttons shown above each story in epic files |
+| `bmadCodelens.devStoryAction` | *(see below)* | Action shown on story implementation files with status `ready-for-dev` |
+| `bmadCodelens.codeReviewAction` | *(see below)* | Action shown on story implementation files with status `review` |
+
+### Action behaviors
+
+Each action has a `behavior` field that controls what happens when the button is clicked:
+
+| Behavior | Description |
+|----------|-------------|
+| `clipboard` | Copies the command to the clipboard |
+| `chat` | Opens the **current** chat panel with the command pre-filled (user presses Enter to submit) |
+| `chat-submit` | Opens the **current** chat panel and submits the command immediately |
+| `new-chat` | Opens a **new** chat and pre-fills it with the command (user presses Enter to submit) |
+| `new-chat-submit` | Opens a **new** chat and submits the command immediately |
+
+> **Tip:** If chat is unavailable (e.g. the VS Code chat extension is not installed), any chat behavior falls back to copying the command to the clipboard.
+
+### Customising actions
+
+Each action object has the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `label` | `string` | Button label shown in the CodeLens |
+| `commandPrefix` | `string` | Slash command prefix (e.g. `/bmad-bmm-create-story`). Use an empty string to copy the full story text. |
+| `behavior` | `string` | One of the behavior values listed above |
+
+**Default `bmadCodelens.actions`:**
+
+```json
+[
+  { "label": "Create Story", "commandPrefix": "/bmad-bmm-create-story", "behavior": "new-chat" },
+  { "label": "Copy Story",   "commandPrefix": "",                        "behavior": "clipboard" }
+]
+```
+
+**Default `bmadCodelens.devStoryAction`:**
+
+```json
+{ "label": "Dev Story", "commandPrefix": "/bmad-bmm-dev-story", "behavior": "new-chat" }
+```
+
+**Default `bmadCodelens.codeReviewAction`:**
+
+```json
+{ "label": "Code Review", "commandPrefix": "/bmad-bmm-code-review", "behavior": "new-chat" }
+```
 
 ## Contributing
 
