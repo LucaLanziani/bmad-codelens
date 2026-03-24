@@ -44,6 +44,11 @@
           "default": "_bmad-output",
           "description": "Relative path to the BMad output folder that contains implementation-artifacts/"
         },
+        "bmadCodelens.bmadFolder": {
+          "type": "string",
+          "default": "_bmad",
+          "description": "Relative path to the BMad installation folder. When this folder exists, the 'Install BMad' status bar button is hidden."
+        },
         "bmadCodelens.actions": {
           "type": "array",
           "default": [
