@@ -97,3 +97,4 @@ Allowed values are: `clipboard`, `chat`, `chat-submit`, `new-chat`, `new-chat-su
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions, development setup, testing, and release process.
+
