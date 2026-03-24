@@ -75,8 +75,8 @@ export async function executeAction(
 
 async function openChatWithQuery(query: string, submit = false): Promise<boolean> {
   const chatCommands = [
-    'workbench.action.chat.open',
     'workbench.action.chat.newChat',
+    'workbench.action.chat.open',
   ];
 
   for (const cmd of chatCommands) {
