@@ -20,8 +20,8 @@
     "Chat"
   ],
   "activationEvents": [
-    "onLanguage:markdown",
-    "onCommand:bmadCodelens.installBmad"
+    "onStartupFinished",
+    "onLanguage:markdown"
   ],
   "main": "./out/extension.js",
   "contributes": {
