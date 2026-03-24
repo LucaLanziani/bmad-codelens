@@ -50,12 +50,21 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(statusBarItem);
 
   if (bmadFolderPath) {
-    const watcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(workspaceFolder!, `${bmadFolder}/`),
+    // Watch for the directory itself being created/deleted
+    const dirWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspaceFolder!, bmadFolder),
     );
-    watcher.onDidCreate(() => updateStatusBarVisibility());
-    watcher.onDidDelete(() => updateStatusBarVisibility());
-    context.subscriptions.push(watcher);
+    dirWatcher.onDidCreate(() => updateStatusBarVisibility());
+    dirWatcher.onDidDelete(() => updateStatusBarVisibility());
+    context.subscriptions.push(dirWatcher);
+
+    // Watch for files inside the directory (e.g. after npx bmad-method install)
+    const contentsWatcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspaceFolder!, `${bmadFolder}/**`),
+    );
+    contentsWatcher.onDidCreate(() => updateStatusBarVisibility());
+    contentsWatcher.onDidDelete(() => updateStatusBarVisibility());
+    context.subscriptions.push(contentsWatcher);
   }
 }
 
