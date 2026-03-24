@@ -6,19 +6,39 @@ import {
   StoryFileCodeLensProvider,
 } from './story-codelens-provider';
 import { installBmad, getOutputFolder } from './actions';
+import { parseStories } from './story-parser';
 
 const STATUS_RE = /^Status:\s*(.+)$/im;
 
 async function getStoryCounts(): Promise<{ done: number; inProgress: number; total: number }> {
-  const files = await vscode.workspace.findFiles(
-    `${getOutputFolder()}/implementation-artifacts/*.md`,
+  const outputFolder = getOutputFolder();
+
+  // Total comes from ### Story headers in epic files (non-implementation-artifact md files)
+  const epicFiles = await vscode.workspace.findFiles(
+    `${outputFolder}/**/*.md`,
+    `**/${outputFolder}/implementation-artifacts/**`,
+  );
+
+  let total = 0;
+  for (const uri of epicFiles) {
+    try {
+      const content = await vscode.workspace.fs.readFile(uri);
+      total += parseStories(Buffer.from(content).toString('utf-8')).length;
+    } catch {
+      // skip unreadable files
+    }
+  }
+
+  // done / in-progress come from Status field in implementation artifact files
+  const implFiles = await vscode.workspace.findFiles(
+    `${outputFolder}/implementation-artifacts/*.md`,
     '**/node_modules/**',
   );
 
   let done = 0;
   let inProgress = 0;
 
-  for (const uri of files) {
+  for (const uri of implFiles) {
     try {
       const content = await vscode.workspace.fs.readFile(uri);
       const text = Buffer.from(content).toString('utf-8');
@@ -34,7 +54,7 @@ async function getStoryCounts(): Promise<{ done: number; inProgress: number; tot
     }
   }
 
-  return { done, inProgress, total: files.length };
+  return { done, inProgress, total };
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
@@ -130,6 +150,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     artifactWatcher.onDidChange(refreshProgress);
     artifactWatcher.onDidDelete(refreshProgress);
     configDisposables.push(artifactWatcher);
+
+    // Also refresh when epic files change (total count comes from ### Story headers)
+    const epicWatcher = vscode.workspace.createFileSystemWatcher(
+      workspaceFolder
+        ? new vscode.RelativePattern(workspaceFolder, `${outputFolder}/**/*.md`)
+        : `**/${outputFolder}/**/*.md`,
+    );
+    epicWatcher.onDidCreate(refreshProgress);
+    epicWatcher.onDidChange(refreshProgress);
+    epicWatcher.onDidDelete(refreshProgress);
+    configDisposables.push(epicWatcher);
   }
 
   context.subscriptions.push(
