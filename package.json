@@ -130,6 +130,13 @@
                 "new-chat",
                 "new-chat-submit"
               ],
+              "enumDescriptions": [
+                "Copy the command to the clipboard",
+                "Open chat with the command pre-filled (user presses Enter to submit)",
+                "Open chat and submit the command immediately",
+                "Open a new chat session with the command pre-filled (user presses Enter to submit)",
+                "Open a new chat session and submit the command immediately"
+              ],
               "description": "Action behavior"
             }
           },
@@ -164,6 +171,13 @@
                 "chat-submit",
                 "new-chat",
                 "new-chat-submit"
+              ],
+              "enumDescriptions": [
+                "Copy the command to the clipboard",
+                "Open chat with the command pre-filled (user presses Enter to submit)",
+                "Open chat and submit the command immediately",
+                "Open a new chat session with the command pre-filled (user presses Enter to submit)",
+                "Open a new chat session and submit the command immediately"
               ],
               "description": "Action behavior"
             }
