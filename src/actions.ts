@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 export interface StoryAction {
   label: string;
   commandPrefix: string;
-  behavior: 'clipboard' | 'chat' | 'chat-submit';
+  behavior: 'clipboard' | 'chat' | 'chat-submit' | 'new-chat' | 'new-chat-submit';
 }
 
 export interface StoryRef {
@@ -26,18 +26,18 @@ export function getOutputFolder(): string {
 export function getDevStoryAction(): StoryAction {
   return vscode.workspace
     .getConfiguration('bmadCodelens')
-    .get<StoryAction>('devStoryAction', { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'chat' });
+    .get<StoryAction>('devStoryAction', { label: 'Dev Story', commandPrefix: '/bmad-bmm-dev-story', behavior: 'new-chat' });
 }
 
 export function getCodeReviewAction(): StoryAction {
   return vscode.workspace
     .getConfiguration('bmadCodelens')
-    .get<StoryAction>('codeReviewAction', { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'chat' });
+    .get<StoryAction>('codeReviewAction', { label: 'Code Review', commandPrefix: '/bmad-bmm-code-review', behavior: 'new-chat' });
 }
 
 function getDefaultActions(): StoryAction[] {
   return [
-    { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'chat' },
+    { label: 'Create Story', commandPrefix: '/bmad-bmm-create-story', behavior: 'new-chat' },
     { label: 'Copy Story', commandPrefix: '', behavior: 'clipboard' },
   ];
 }
@@ -56,8 +56,10 @@ export async function executeAction(
     ? `${action.commandPrefix} ${story.id}`
     : story.fullText;
 
-  if (action.behavior === 'chat' || action.behavior === 'chat-submit') {
-    const opened = await openChatWithQuery(text, action.behavior === 'chat-submit');
+  if (isChatBehavior(action.behavior)) {
+    const createNew = action.behavior === 'new-chat' || action.behavior === 'new-chat-submit';
+    const submit = action.behavior === 'chat-submit' || action.behavior === 'new-chat-submit';
+    const opened = await openChatWithQuery(text, submit, createNew);
     if (!opened) {
       await vscode.env.clipboard.writeText(text);
       vscode.window.showInformationMessage(
@@ -73,11 +75,18 @@ export async function executeAction(
   );
 }
 
-async function openChatWithQuery(query: string, submit = false): Promise<boolean> {
-  try {
-    await vscode.commands.executeCommand('workbench.action.chat.newChat');
-  } catch {
-    // newChat not available, fall through to open directly
+function isChatBehavior(behavior: StoryAction['behavior']): boolean {
+  return behavior === 'chat' || behavior === 'chat-submit' ||
+    behavior === 'new-chat' || behavior === 'new-chat-submit';
+}
+
+async function openChatWithQuery(query: string, submit = false, createNew = false): Promise<boolean> {
+  if (createNew) {
+    try {
+      await vscode.commands.executeCommand('workbench.action.chat.newChat');
+    } catch {
+      // newChat not available, fall through to open directly
+    }
   }
 
   try {
