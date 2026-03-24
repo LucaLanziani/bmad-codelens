@@ -5,7 +5,7 @@ import {
   EpicCodeLensProvider,
   StoryFileCodeLensProvider,
 } from './story-codelens-provider';
-import { installBmad, getOutputFolder } from './actions';
+import { installBmad, getOutputFolder, executeAction } from './actions';
 import { parseStories } from './story-parser';
 
 const STATUS_RE = /^Status:\s*(.+)$/im;
@@ -62,6 +62,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(
     vscode.commands.registerCommand('bmadCodelens.installBmad', () => installBmad()),
+    vscode.commands.registerCommand('bmadCodelens.executeAction', (args) => executeAction(args.action, args.story)),
   );
 
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);

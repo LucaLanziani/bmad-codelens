@@ -29,6 +29,10 @@
       {
         "command": "bmadCodelens.installBmad",
         "title": "BMad: Install"
+      },
+      {
+        "command": "bmadCodelens.executeAction",
+        "title": "BMad: Execute Story Action"
       }
     ],
     "configuration": {
