@@ -60,6 +60,18 @@ A single status-dependent action button appears above the header:
 
 Clicking a button opens the Copilot Chat panel with the slash command and story ID pre-filled. If chat is unavailable, the command is copied to the clipboard instead.
 
+### Action behavior modes
+
+Each action has a `behavior` field that controls what happens when you click the CodeLens button:
+
+| Behavior | What it does |
+|----------|---------------|
+| `clipboard` | Copies the generated text to the clipboard (command + story ID, or full story text when no command prefix is set). |
+| `chat` | Opens Copilot Chat with the generated text pre-filled; you press Enter to send. |
+| `chat-submit` | Opens Copilot Chat and submits the generated text immediately. |
+| `new-chat` | Starts a new Copilot Chat session, then opens chat with the generated text pre-filled; you press Enter to send. |
+| `new-chat-submit` | Starts a new Copilot Chat session, then opens chat and submits the generated text immediately. |
+
 Status is resolved by matching story IDs to implementation artifact files (e.g. Story `1.1` matches `1-1-*.md` in `implementation-artifacts/`), then reading the `Status:` field from the file.
 
 ## Configuration
@@ -70,6 +82,17 @@ Settings available under `bmadCodelens.*`:
 |---------|---------|-------------|
 | `bmadCodelens.enabled` | `true` | Enable/disable CodeLens buttons |
 | `bmadCodelens.outputFolder` | `_bmad-output` | Relative path to the BMad output folder that contains `implementation-artifacts/` |
+| `bmadCodelens.bmadFolder` | `_bmad` | Relative path to the BMad installation folder used to detect whether to show the “Install BMad” status bar button |
+| `bmadCodelens.actions` | See extension defaults | Actions shown in epic files (`Create Story`, `Copy Story`, etc.); each entry supports `label`, `commandPrefix`, and `behavior` |
+| `bmadCodelens.devStoryAction` | `Dev Story` + `/bmad-bmm-dev-story` + `new-chat` | Action used in story implementation files when status is `ready-for-dev` |
+| `bmadCodelens.codeReviewAction` | `Code Review` + `/bmad-bmm-code-review` + `new-chat` | Action used in story implementation files when status is `review` |
+
+To change action behavior, edit the `behavior` value on:
+- each item in `bmadCodelens.actions`
+- `bmadCodelens.devStoryAction.behavior`
+- `bmadCodelens.codeReviewAction.behavior`
+
+Allowed values are: `clipboard`, `chat`, `chat-submit`, `new-chat`, `new-chat-submit`.
 
 ## Contributing
 
