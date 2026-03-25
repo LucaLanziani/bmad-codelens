@@ -1,24 +1,33 @@
-name: Release Extension
+name: Pre-release Extension
 
 on:
   workflow_dispatch:
     inputs:
-      version_bump:
-        description: 'Version bump type (use promote-prerelease to promote the current pre-release to stable)'
+      bump_type:
+        description: 'Version bump type'
         required: true
         type: choice
         options:
-          - patch
-          - minor
-          - major
-          - promote-prerelease
-        default: patch
+          - prerelease
+          - prepatch
+          - preminor
+          - premajor
+        default: prerelease
+      preid:
+        description: 'Pre-release identifier'
+        required: true
+        type: choice
+        options:
+          - alpha
+          - beta
+          - rc
+        default: alpha
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  pre-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -31,17 +40,7 @@ jobs:
       - name: Bump version
         id: version
         run: |
-          if [ "${{ inputs.version_bump }}" = "promote-prerelease" ]; then
-            CURRENT=$(node -p "require('./package.json').version")
-            STABLE=$(echo "$CURRENT" | sed 's/-.*$//')
-            if [ "$CURRENT" = "$STABLE" ]; then
-              echo "Current version ($CURRENT) has no pre-release suffix; nothing to promote."
-              exit 1
-            fi
-            npm version "$STABLE" --no-git-tag-version --allow-same-version
-          else
-            npm version ${{ inputs.version_bump }} --no-git-tag-version
-          fi
+          npm version ${{ inputs.bump_type }} --preid=${{ inputs.preid }} --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "vsix_name=bmad-codelens-${VERSION}.vsix" >> "$GITHUB_OUTPUT"
@@ -57,17 +56,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json package-lock.json
-          git commit -m "release: v${{ steps.version.outputs.version }}"
+          git commit -m "chore: pre-release v${{ steps.version.outputs.version }}"
           git tag "v${{ steps.version.outputs.version }}"
           git push origin HEAD --tags
 
-      - name: Create GitHub Release
+      - name: Create GitHub Pre-release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
+          prerelease: true
           body: |
-            ## BMad Story CodeLens v${{ steps.version.outputs.version }}
+            ## BMad Story CodeLens v${{ steps.version.outputs.version }} (Pre-release)
+
+            > ⚠️ This is a pre-release version intended for testing. Use in production at your own risk.
 
             ### Install
 
